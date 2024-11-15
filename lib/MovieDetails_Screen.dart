@@ -7,7 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 class MovieDetailsScreen extends StatelessWidget {
   final int showId;
 
-  MovieDetailsScreen({required this.showId});
+  const MovieDetailsScreen({super.key, required this.showId});
 
   Future<Map<String, dynamic>> fetchMovieDetails() async {
     final response =
@@ -51,7 +51,8 @@ class MovieDetailsScreen extends StatelessWidget {
                     child: CachedNetworkImage(
                       imageUrl: show['image'] != null
                           ? show['image']['original']
-                          : 'https://via.placeholder.com/600x400',
+                          : 'https://static.tvmaze.com/images/no-img/no-img-portrait-text.png',
+                      // : 'https://via.placeholder.com/600x400',
                       width: double.infinity,
                       height: 250,
                       fit: BoxFit.contain,
@@ -61,7 +62,7 @@ class MovieDetailsScreen extends StatelessWidget {
 
                   // Show Title
                   Text(
-                    show['name'],
+                    show['name'] ?? "",
                     style: const TextStyle(
                         fontSize: 28, fontWeight: FontWeight.bold),
                   ),
@@ -69,40 +70,47 @@ class MovieDetailsScreen extends StatelessWidget {
 
                   // Show Genres
                   Text(
-                    show['genres'].join(', '),
+                    show['genres'].join(', ') ?? "",
                     style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   const SizedBox(height: 16),
 
                   // Show Premiere Date and Status
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Premiered: ${show['premiered']}',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      Text(
-                        'Status: ${show['status']}',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // children: [
+                  if (show['premiered'] != null) ...[
+                    Text(
+                      'Premiered: ${show['premiered'] ?? ""}',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                  if (show['status'] != null) ...[
+                    Text(
+                      'Status: ${show['status'] ?? ""}',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    //   ],
+                    // ),
+                    const SizedBox(height: 16),
+                  ],
 
                   // Show Runtime
-                  Row(
-                    children: [
-                      const Icon(Icons.access_time,
-                          size: 18, color: Colors.grey),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${show['runtime']} minutes',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
+                  if (show['runtime'] != null) ...[
+                    Row(
+                      children: [
+                        const Icon(Icons.access_time,
+                            size: 18, color: Colors.grey),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${show['runtime']} minutes',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16)
+                  ],
 
                   // Show Rating
                   Row(
@@ -118,20 +126,23 @@ class MovieDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // Show Network
-                  Row(
-                    children: [
-                      const Icon(Icons.tv, size: 18, color: Colors.grey),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Network: ${show['network']['name']}',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
+                  if (show['network'] != null &&
+                      show['network']['name'] != null) ...[
+                    Row(
+                      children: [
+                        const Icon(Icons.tv, size: 18, color: Colors.grey),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Network: ${show['network']['name'] ?? ""}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16)
+                  ],
 
                   // Official Site
-                  if (show['officialSite'] != null)
+                  if (show['officialSite'] != null) ...[
                     GestureDetector(
                       onTap: () {
                         launchURL(show['officialSite']);
@@ -147,28 +158,32 @@ class MovieDetailsScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
+                  ],
 
                   // Summary
-                  const Text(
-                    'Summary',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    show['summary'] != null
-                        ? show['summary']?.replaceAll(RegExp(r'<[^>]*>'), '')
-                        : 'No summary available.',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 16),
+                  if (show['summary'] != null) ...[
+                    const Text(
+                      'Summary',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      show['summary'] != null
+                          ? show['summary']?.replaceAll(RegExp(r'<[^>]*>'), '')
+                          : 'No summary available.',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
 
                   // IMDb Link
                   if (show['externals']['imdb'] != null)
                     GestureDetector(
                       onTap: () {
                         launchURL(
-                            'https://www.imdb.com/title/${show['externals']['imdb']}');
+                            'https://www.imdb.com/title/${show['externals']['imdb'] ?? ""}');
                       },
                       child: const Row(
                         children: [
@@ -193,10 +208,11 @@ class MovieDetailsScreen extends StatelessWidget {
 
   // Launch URL helper function
   void launchURL(String url) async {
-    final Uri uri = Uri.parse(url);  // Convert string to Uri
+    final Uri uri = Uri.parse(url); // Convert string to Uri
 
-    if (await canLaunchUrl(uri)) {  // Check if the URL can be launched
-      await launchUrl(uri);  // Launch the URL
+    if (await canLaunchUrl(uri)) {
+      // Check if the URL can be launched
+      await launchUrl(uri); // Launch the URL
     } else {
       throw 'Could not launch $url';
     }
