@@ -42,8 +42,18 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             TextField(
               controller: _controller,
-              onEditingComplete: () {
-                searchMovies(_controller.text);
+              // onEditingComplete: () {
+              //   searchMovies(_controller.text);
+              // },
+              onChanged: (value) {
+                if (value.isEmpty) {
+                  setState(() {
+                    searchResults = [];
+                  });
+                }
+                Future.delayed(const Duration(seconds: 2), () {
+                  searchMovies(_controller.text);
+                });
               },
               style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(
@@ -78,7 +88,9 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             Expanded(
               child: searchResults.isEmpty
-                  ? const Center(child: Text('No results found'))
+                  ? _controller.text.isEmpty
+                      ? const Center(child: Text("Search Movie & TV Shows..."))
+                      : const Center(child: Text('No results found'))
                   : ListView.builder(
                       itemCount: searchResults.length,
                       itemBuilder: (context, index) {
@@ -91,12 +103,13 @@ class _SearchScreenState extends State<SearchScreen> {
                           leading: CachedNetworkImage(
                             imageUrl: show['image'] != null
                                 ? show['image']['medium']
-                                : 'https://via.placeholder.com/150',
+                                : 'https://static.tvmaze.com/images/no-img/no-img-portrait-text.png',
                             width: 50,
                             height: 75,
                             fit: BoxFit.contain,
                           ),
-                          title: Text(show['name']),
+                          title: Text(
+                              "${show['name']} ${show['premiered'] != null ? (show['premiered'].split("-").first) : ''}"),
                           // subtitle: Text(
                           //   show['summary']
                           //           ?.replaceAll(RegExp(r'<[^>]*>'), '') ??
