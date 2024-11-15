@@ -82,9 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         : 'https://static.tvmaze.com/images/no-img/no-img-portrait-text.png';
                     // : 'https://via.placeholder.com/200x300';
                     final title = movie['name'];
-                    final summary =
-                        movie['summary']?.replaceAll(RegExp(r'<[^>]*>'), '') ??
-                            'No summary available.';
+                    // final summary =
+                    //     movie['summary']?.replaceAll(RegExp(r'<[^>]*>'), '') ??
+                    //         'No summary available.';
                     final gerne = movie['genres'];
 
                     return GestureDetector(

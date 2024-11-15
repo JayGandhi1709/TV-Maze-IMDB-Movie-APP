@@ -42,45 +42,80 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             TextField(
               controller: _controller,
-              // onEditingComplete: () {
-              //   searchMovies(_controller.text);
-              // },
               onChanged: (value) {
                 if (value.isEmpty) {
                   setState(() {
                     searchResults = [];
                   });
                 }
-                Future.delayed(const Duration(seconds: 2), () {
+                Future.delayed(const Duration(seconds: 1), () {
                   searchMovies(_controller.text);
                 });
               },
+              // onTapOutside: , remove focus
+              onTapOutside: (event) {
+                FocusScope.of(context).unfocus();
+              },
               style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                hintText: 'Search Movies...',
-                hintStyle: TextStyle(
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.search,
+              decoration: InputDecoration(
+                hintText: 'Search Movies & Tv Shows...',
+                hintStyle: const TextStyle(
                   color: Colors.white,
                 ),
-                labelStyle: TextStyle(
+                labelStyle: const TextStyle(
                   color: Colors.white,
                 ),
                 suffixIconColor: Colors.white,
-                suffixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10),
-                  ),
-                  borderSide: BorderSide(
-                    color: Colors.white,
+                suffixIcon: IconButton(
+                  padding: const EdgeInsets.all(0),
+                  icon: const Icon(Icons.search),
+                  onPressed: () {
+                    searchMovies(_controller.text);
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(
+                      const Color.fromRGBO(60, 148, 139, 1),
+                    ),
+                    shape: WidgetStateProperty.all(
+                      const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(10),
+                          bottomRight: Radius.circular(10),
+                        ),
+                        side: BorderSide(
+                          color: Color.fromRGBO(60, 148, 139, 0),
+                          width: 0,
+                          style: BorderStyle.none,
+                        ),
+                      ),
+                    ),
+                    visualDensity: const VisualDensity(
+                      horizontal: -4,
+                      vertical: -4,
+                    ),
                   ),
                 ),
-                focusedBorder: OutlineInputBorder(
+                focusedBorder: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(
                     Radius.circular(10),
                   ),
                   borderSide: BorderSide(
                     color: Color.fromRGBO(60, 148, 139, 1),
                   ),
+                ),
+                enabledBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10),
+                  ),
+                  borderSide: BorderSide(
+                    color: Color.fromRGBO(60, 148, 139, 1),
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 10,
                 ),
                 fillColor: Colors.white38,
                 filled: true,
@@ -109,7 +144,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             fit: BoxFit.contain,
                           ),
                           title: Text(
-                              "${show['name']} ${show['premiered'] != null ? (show['premiered'].split("-").first) : ''}"),
+                              "${show['name']} ${show['premiered'] != null ? '(${show['premiered'].split("-").first})' : ''}"),
                           // subtitle: Text(
                           //   show['summary']
                           //           ?.replaceAll(RegExp(r'<[^>]*>'), '') ??

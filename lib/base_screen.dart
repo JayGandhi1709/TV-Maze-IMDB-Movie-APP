@@ -24,7 +24,7 @@ class _BaseScreenState extends State<BaseScreen> {
       appBar: AppBar(
         title: CachedNetworkImage(
           imageUrl: 'https://static.tvmaze.com/images/tvm-header-logo.png',
-          height: 35,
+          height: 40,
         ),
       ),
       body: screens[currentIndex],
