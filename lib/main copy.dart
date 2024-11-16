@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:myapp/New_UI/home_screen.dart';
+import 'package:myapp/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,6 +8,7 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,41 +16,37 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // change app text color to white
-        textTheme: TextTheme(
-          bodyMedium: TextStyle(
-            color: Colors.black,
-            fontFamily: GoogleFonts.montserrat().fontFamily,
-          ),
+        textTheme: const TextTheme(
+          bodyMedium: TextStyle(color: Colors.white),
         ),
-        // listTileTheme: const ListTileThemeData(
-        //   textColor: Colors.black,
-        //   titleTextStyle: TextStyle(
-        //     fontWeight: FontWeight.bold,
-        //     fontSize: 16,
-        //   ),
-        //   subtitleTextStyle: TextStyle(
-        //     color: Colors.grey,
-        //     fontSize: 14,
-        //   ),
-        // ),
-        scaffoldBackgroundColor: Colors.white.withAlpha(240),
-        brightness: Brightness.light,
+        listTileTheme: const ListTileThemeData(
+            textColor: Colors.white,
+            titleTextStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+            subtitleTextStyle: TextStyle(
+              color: Colors.grey,
+              fontSize: 14,
+            )),
+        scaffoldBackgroundColor: Colors.white12,
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.white24,
           elevation: 2,
           centerTitle: true,
           titleTextStyle: TextStyle(
-            color: Colors.black,
+            color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
           iconTheme: IconThemeData(
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
         progressIndicatorTheme: const ProgressIndicatorThemeData(
           color: Color.fromRGBO(60, 148, 139, 1),
         ),
+
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           backgroundColor: Colors.white24,
           selectedItemColor: Color.fromRGBO(60, 148, 139, 1),
@@ -59,7 +55,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      home: const SplashScreen(),
     );
   }
 }
