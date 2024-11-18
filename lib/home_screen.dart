@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.all(10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               const Text(
                 "Home",
@@ -44,14 +45,8 @@ class _HomeScreenState extends State<HomeScreen> {
               TextField(
                 controller: _controller,
                 onChanged: (value) {
-                  // if (value.isEmpty) {
-                  //   setState(() {
-                  //     searchResults = [];
-                  //   });
-                  // }
-                  // Future.delayed(const Duration(seconds: 1), () {
-                  //   // searchMovies(_controller.text);
-                  // });
+                  Provider.of<MovieProvider>(context, listen: false)
+                      .fetchMovies(query: value);
                 },
                 onTapOutside: (event) {
                   FocusScope.of(context).unfocus();
@@ -73,7 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.all(0),
                     icon: const Icon(Icons.search),
                     onPressed: () {
-                      // searchMovies(_controller.text);
+                      Provider.of<MovieProvider>(context, listen: false)
+                          .fetchMovies(query: _controller.text);
                     },
                   ),
                   border: const OutlineInputBorder(
@@ -88,7 +84,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               if (movieProvider.isLoading)
-                const Center(child: CircularProgressIndicator())
+                const Expanded(
+                    child: Center(child: CircularProgressIndicator()))
               else if (movieProvider.errorMessage.isNotEmpty)
                 Center(child: Text(movieProvider.errorMessage))
               else
