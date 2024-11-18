@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:url_launcher/url_launcher.dart';
 
 class MovieDetailsScreen extends StatelessWidget {
   final int showId;
@@ -45,14 +44,12 @@ class MovieDetailsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Show image
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8.0),
                     child: CachedNetworkImage(
                       imageUrl: show['image'] != null
                           ? show['image']['original']
                           : 'https://static.tvmaze.com/images/no-img/no-img-portrait-text.png',
-                      // : 'https://via.placeholder.com/600x400',
                       width: double.infinity,
                       height: 250,
                       fit: BoxFit.contain,
@@ -60,7 +57,6 @@ class MovieDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  // Show Title
                   Text(
                     show['name'] ?? "",
                     style: const TextStyle(
@@ -68,17 +64,12 @@ class MovieDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
 
-                  // Show Genres
                   Text(
                     show['genres'].join(', ') ?? "",
                     style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   const SizedBox(height: 16),
 
-                  // Show Premiere Date and Status
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  // children: [
                   if (show['premiered'] != null) ...[
                     Text(
                       'Premiered: ${show['premiered'] ?? ""}',
@@ -141,26 +132,6 @@ class MovieDetailsScreen extends StatelessWidget {
                     const SizedBox(height: 16)
                   ],
 
-                  // Official Site
-                  if (show['officialSite'] != null) ...[
-                    GestureDetector(
-                      onTap: () {
-                        launchURL(show['officialSite']);
-                      },
-                      child: const Row(
-                        children: [
-                          Icon(Icons.link, size: 18, color: Colors.blue),
-                          SizedBox(width: 8),
-                          Text(
-                            'Official Site',
-                            style: TextStyle(fontSize: 16, color: Colors.blue),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-
                   // Summary
                   if (show['summary'] != null) ...[
                     const Text(
@@ -177,26 +148,6 @@ class MovieDetailsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                   ],
-
-                  // IMDb Link
-                  if (show['externals']['imdb'] != null)
-                    GestureDetector(
-                      onTap: () {
-                        launchURL(
-                            'https://www.imdb.com/title/${show['externals']['imdb'] ?? ""}');
-                      },
-                      child: const Row(
-                        children: [
-                          Icon(Icons.movie, size: 18, color: Colors.orange),
-                          SizedBox(width: 8),
-                          Text(
-                            'View on IMDb',
-                            style:
-                                TextStyle(fontSize: 16, color: Colors.orange),
-                          ),
-                        ],
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -204,17 +155,5 @@ class MovieDetailsScreen extends StatelessWidget {
         },
       ),
     );
-  }
-
-  // Launch URL helper function
-  void launchURL(String url) async {
-    final Uri uri = Uri.parse(url); // Convert string to Uri
-
-    if (await canLaunchUrl(uri)) {
-      // Check if the URL can be launched
-      await launchUrl(uri); // Launch the URL
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 }

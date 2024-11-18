@@ -1,8 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:myapp/MovieDetails_Screen.dart';
+import 'package:myapp/Movie_Details_Screen.dart';
+import 'package:provider/provider.dart';
+import 'movie_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,163 +11,227 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int page = 0;
-  Future<List<dynamic>> fetchMovies() async {
-    final response =
-        await http.get(Uri.parse('https://api.tvmaze.com/shows?page=$page'));
-    // await http.get(Uri.parse('https://api.tvmaze.com/search/shows?q=all'));
+  final TextEditingController _controller = TextEditingController();
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      // print(data.map((item) => item).toList());
-      return data.map((item) => item).toList(); // Extracting the show data
-    } else {
-      throw Exception('Failed to load movies');
-    }
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<MovieProvider>(context, listen: false).fetchMovies();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final crossAxisCount =
-        screenWidth > 600 ? 3 : 2; // Adjusts columns based on screen width
-    final childAspectRatio =
-        (screenWidth / crossAxisCount) / (screenWidth / crossAxisCount * 1.6);
+    final movieProvider = Provider.of<MovieProvider>(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Movies & TV Shows'),
-        elevation: 0,
-      ),
-      body: FutureBuilder<List<dynamic>>(
-        future: fetchMovies(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No Movies Found.'));
-          }
-
-          final movies = snapshot.data!;
-          // print(movies.length);
-          // print("length : ${movies.length}");
-
-          return Column(
+    return SafeArea(
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: GridView.builder(
-                  padding: const EdgeInsets.all(8.0),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    // crossAxisCount: 2,
-                    crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 8.0,
-                    mainAxisSpacing: 8.0,
-                    childAspectRatio: childAspectRatio,
-                  ),
-                  itemCount: movies.length,
-                  itemBuilder: (context, index) {
-                    final movie = movies[index];
-                    // print(movie);
-                    final imageUrl = movie['image'] != null
-                        ? movie['image']['medium']
-                        : 'https://static.tvmaze.com/images/no-img/no-img-portrait-text.png';
-                    // : 'https://via.placeholder.com/200x300';
-                    final title = movie['name'];
-                    // final summary =
-                    //     movie['summary']?.replaceAll(RegExp(r'<[^>]*>'), '') ??
-                    //         'No summary available.';
-                    final gerne = movie['genres'];
-
-                    return GestureDetector(
-                      onTap: () {
-                        // Navigate to the details screen for this movie
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                MovieDetailsScreen(showId: movie['id']),
-                          ),
-                        );
-                      },
-                      child: Card(
-                        elevation: 5,
-                        color: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 10),
-                            ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                topRight: Radius.circular(10),
-                              ),
-                              child: CachedNetworkImage(
-                                imageUrl: imageUrl,
-                                width: double.infinity,
-                                height: 180,
-                                fit: BoxFit.contain,
-                                alignment: Alignment.topCenter,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Movie Title
-                                  Text(
-                                    title,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  // genre
-                                  Text(
-                                    gerne.join(', '),
-                                    maxLines: 2,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  // const SizedBox(height: 8),
-                                  // Short Summary (truncated)
-                                  // Text(
-                                  //   summary.length > 100
-                                  //       ? summary.substring(0, 100) + '...'
-                                  //       : summary,
-                                  //   style: const TextStyle(
-                                  //       fontSize: 14, color: Colors.grey),
-                                  //   maxLines: 3,
-                                  //   overflow: TextOverflow.ellipsis,
-                                  // ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+              const Text(
+                "Home",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.black87,
                 ),
               ),
-              // show next page button
+              const SizedBox(height: 10),
+              TextField(
+                controller: _controller,
+                onChanged: (value) {
+                  // if (value.isEmpty) {
+                  //   setState(() {
+                  //     searchResults = [];
+                  //   });
+                  // }
+                  // Future.delayed(const Duration(seconds: 1), () {
+                  //   // searchMovies(_controller.text);
+                  // });
+                },
+                onTapOutside: (event) {
+                  FocusScope.of(context).unfocus();
+                },
+                style: const TextStyle(color: Colors.black),
+                keyboardType: TextInputType.text,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: 'Search',
+                  hintStyle: const TextStyle(
+                    color: Colors.black38,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  labelStyle: const TextStyle(
+                    color: Colors.black,
+                  ),
+                  suffixIconColor: Colors.black,
+                  suffixIcon: IconButton(
+                    padding: const EdgeInsets.all(0),
+                    icon: const Icon(Icons.search),
+                    onPressed: () {
+                      // searchMovies(_controller.text);
+                    },
+                  ),
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(0)),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 10,
+                  ),
+                  fillColor: Colors.white38,
+                  filled: true,
+                ),
+              ),
+              if (movieProvider.isLoading)
+                const Center(child: CircularProgressIndicator())
+              else if (movieProvider.errorMessage.isNotEmpty)
+                Center(child: Text(movieProvider.errorMessage))
+              else
+                Expanded(
+                  child: ListView.builder(
+                    // padding: const EdgeInsets.all(8.0),
+                    itemCount: movieProvider.movies.length,
+                    itemBuilder: (context, index) {
+                      final movie = movieProvider.movies[index];
+                      // print(movie);
+                      final imageUrl = movie['image'] != null
+                          ? movie['image']['medium']
+                          : 'https://static.tvmaze.com/images/no-img/no-img-portrait-text.png';
+                      final title = movie['name'];
+                      // final summary =
+                      //     movie['summary']?.replaceAll(RegExp(r'<[^>]*>'), '') ??
+                      //         'No summary available.';
+                      final gerne = movie['genres'];
+                      final rating = movie['rating']['average'];
+
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 80),
+                        child: GestureDetector(
+                          onTap: () {
+                            // Navigate to the details screen for this movie
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MovieDetailsScreen(
+                                  showId: movie['id'],
+                                ),
+                              ),
+                            );
+                          },
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Container(
+                                height: 140,
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 10,
+                                      // offset: const Offset(0, 5),
+                                      // top 0 right 5
+                                      offset: const Offset(0.1, 2),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Positioned(
+                                top: -60,
+                                left: 10,
+                                child: Container(
+                                  width: 120,
+                                  height: 180,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    image: DecorationImage(
+                                      image: NetworkImage(
+                                        imageUrl,
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 16,
+                                left: 150,
+                                right: 16,
+                                bottom: 20,
+                                child: SizedBox.shrink(
+                                  // height: 180,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        title,
+                                        style: const TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.bold,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        gerne.join(' | '),
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      if (rating != null) ...[
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 18,
+                                            // vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(50),
+                                            color: rating != null
+                                                ? rating >= 7
+                                                    ? Colors.green
+                                                    : rating >= 5
+                                                        ? Colors.blue
+                                                        : Colors.red
+                                                : Colors.grey,
+                                          ),
+                                          child: Text(
+                                            "$rating IMDB",
+                                            maxLines: 2,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              color: Colors.white,
+                                              overflow: TextOverflow.ellipsis,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                        ),
+                                      ]
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
             ],
-          );
-        },
+          ),
+        ),
       ),
     );
   }
